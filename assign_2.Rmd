@@ -1,0 +1,235 @@
+---
+title: "assign_2"
+author: "Fang Liu"
+date: "11/8/2021"
+output: html_document
+---
+
+Load required packages.
+```{r, message=FALSE}
+library(readxl)
+library(tidyverse)
+```
+
+Load the surveillance data
+```{r}
+flusurv = 
+  read_excel("flusurv-2021.xlsx") %>% 
+  janitor::clean_names()
+```
+
+# Question 1
+
+### Method 1 
+```{r}
+new_df =
+flusurv %>% 
+  filter(month1 == 1, year1 == 2011, flu_pos == 1) %>% 
+  count()
+```
+
+### Method 2 
+```{r}
+avg_influenza = 
+flusurv %>% 
+  group_by(month1, year1) %>% 
+  drop_na(flu_pos) %>% 
+  summarize(num_pos = sum(flu_pos == 1)) %>% 
+  mutate(avg_pos = mean(num_pos)) 
+```
+
+
+# Question 2 
+Which influenza sub type is predominant in July 2012 – June 2013?
+
+## pre_2009_h1n  
+#### 2012
+```{r}
+flusurv %>% 
+  filter(year1 == 2012, month1 %in% c(7:12)) %>% 
+  group_by(month1) %>% 
+  drop_na(pre_2009_h1n1) %>% 
+  summarize(num_pre = sum(pre_2009_h1n1 == 1))
+```
+
+#### 2013 
+```{r}
+flusurv %>% 
+  filter(year1 == 2013, month1 %in% c(1:6)) %>% 
+  group_by(month1) %>% 
+  drop_na(pre_2009_h1n1) %>% 
+  summarize(num_pre = sum(pre_2009_h1n1 == 1))
+```
+
+
+## SWINE FLU  
+#### 2012
+```{r}
+flusurv %>% 
+  filter(year1 == 2012, month1 %in% c(7:12)) %>% 
+  group_by(month1) %>% 
+  drop_na(swinf) %>% 
+  summarize(num_swinef = sum(swinf == 1))
+```
+
+#### 2013 
+```{r}
+flusurv %>% 
+  filter(year1 == 2013, month1 %in% c(1:6)) %>% 
+  group_by(month1) %>% 
+  drop_na(swinf) %>% 
+  summarize(num_swinef = sum(swinf == 1))
+```
+
+## H3N2
+#### 2012
+```{r}
+flusurv %>% 
+  filter(year1 == 2012, month1 %in% c(7:12)) %>% 
+  group_by(month1) %>% 
+  drop_na(a_h3n2) %>% 
+  summarize(num_h3n2 = sum(a_h3n2 == 1))
+```
+
+#### 2013 
+```{r}
+flusurv %>% 
+  filter(year1 == 2013, month1 %in% c(1:6)) %>% 
+  group_by(month1) %>% 
+  drop_na(a_h3n2) %>% 
+  summarize(num_h3n2 = sum(a_h3n2 == 1))
+```
+
+## A/H5N1
+#### 2012
+```{r}
+flusurv %>% 
+  filter(year1 == 2012, month1 %in% c(7:12)) %>% 
+  group_by(month1) %>% 
+  drop_na(h5) %>% 
+  summarize(num_h5 = sum(h5 == 1))
+```
+
+#### 2013 
+```{r}
+flusurv %>% 
+  filter(year1 == 2013, month1 %in% c(1:6)) %>% 
+  group_by(month1) %>% 
+  drop_na(h5) %>% 
+  summarize(num_h5 = sum(h5 == 1))
+```
+
+## Type B  
+#### 2012
+```{r}
+flusurv %>% 
+  filter(year1 == 2012, month1 %in% c(7:12)) %>% 
+  group_by(month1) %>% 
+  drop_na(flu_b) %>% 
+  summarize(num_b = sum(flu_b == 1))
+```
+
+#### 2013 
+```{r}
+flusurv %>% 
+  filter(year1 == 2013, month1 %in% c(1:6)) %>% 
+  group_by(month1) %>% 
+  drop_na(flu_b) %>% 
+  summarize(num_b = sum(flu_b == 1))
+```
+
+# Question 3  
+Tabulate the number of influenza positive specimens by epi week! 
+```{r}
+flusurv_2014 = 
+  read_excel("flusurv-2021.xlsx",sheet = "New 2014 Data") %>% 
+  janitor::clean_names()
+```
+
+```{r}
+new_data = 
+flusurv_2014 %>% 
+  group_by(epi_week) %>% 
+  drop_na(flu_pos) %>% 
+  summarize(num_pos = sum(flu_pos == 1)) 
+
+new_data$num_pos
+```
+
+
+# Question 4 
+
+## Chronic Disease
+#### week 2-12
+```{r}
+flusurv_2014 %>%
+  filter(epi_week %in% 2:12) %>% 
+  filter(chronic_dis %in% c(1, 0)) %>% 
+  filter(chronic_dis == 1) 
+```
+
+#### week 13-15
+```{r}
+flusurv_2014 %>%
+  filter(epi_week %in% 13:15) %>% 
+  drop_na(chronic_dis) %>%
+  filter(chronic_dis != 99) %>% 
+  filter(chronic_dis == 1) 
+```
+
+
+## Age Group
+#### week 2-12
+```{r}
+flusurv_2014 %>%
+  filter(epi_week %in% 2:12) %>% 
+  drop_na(age_g) %>% 
+  filter(age_g == 4) 
+```
+
+#### week 13-15
+```{r}
+flusurv_2014 %>%
+  filter(epi_week %in% 13:15) %>% 
+  drop_na(age_g) %>% 
+  filter(age_g == 4) %>% 
+  count()
+```
+
+## ICU admission 
+#### week 2-12
+```{r}
+flusurv_2014 %>%
+  filter(epi_week %in% 2:12) %>% 
+  filter(icu %in% c(1,0)) %>% 
+  filter(icu == 1) %>% 
+  count()
+```
+
+#### week 13-15
+```{r}
+flusurv_2014 %>%
+  filter(epi_week %in% 13:15) %>% 
+  filter(icu %in% c(1,0)) %>% 
+  filter(icu == 1) %>% 
+  count()
+```
+
+## Outcome - death
+#### week 2-12
+```{r}
+flusurv_2014 %>%
+  filter(epi_week %in% 2:12) %>% 
+  filter(outcome %in% c(1:3)) %>% 
+  filter(outcome == 3) %>% 
+  count()
+```
+
+#### week 13-15
+```{r}
+flusurv_2014 %>%
+  filter(epi_week %in% 13:15) %>% 
+  filter(outcome %in% c(1:3)) %>% 
+  filter(outcome == 3) %>% 
+  count()
+```
